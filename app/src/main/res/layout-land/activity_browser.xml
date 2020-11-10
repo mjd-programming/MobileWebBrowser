@@ -4,17 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/portrait"
+    android:id="@+id/landscape"
     tools:context=".BrowserActivity">
 
     <FrameLayout
         android:id="@+id/browser_control"
         android:layout_width="0dp"
         android:layout_height="60dp"
-        app:layout_constraintBottom_toTopOf="@id/page_control"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/page_viewer"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/page_control">
     </FrameLayout>
 
     <FrameLayout
@@ -24,20 +24,18 @@
         app:layout_constraintBottom_toTopOf="@+id/page_viewer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/browser_control">
+        app:layout_constraintTop_toTopOf="parent">
 
     </FrameLayout>
 
     <FrameLayout
         android:id="@+id/page_viewer"
-        android:layout_width="0dp"
+        android:layout_width="500dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/browser_control"
         app:layout_constraintTop_toBottomOf="@+id/page_control">
 
     </FrameLayout>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

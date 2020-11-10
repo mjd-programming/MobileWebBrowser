@@ -9,7 +9,7 @@
 
     <EditText
         android:id="@+id/url"
-        android:layout_width="200dp"
+        android:layout_width="500dp"
         android:layout_height="48dp"
         android:autofillHints="url"
         android:singleLine="true"
