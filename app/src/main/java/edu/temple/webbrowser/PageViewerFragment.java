@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.webkit.WebBackForwardList;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
@@ -20,6 +21,7 @@ import android.webkit.WebViewClient;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,20 +38,29 @@ public class PageViewerFragment extends Fragment {
 
         @Override
         public void doUpdateVisitedHistory(WebView view, String url, boolean isReload) {
-            listener.informationFromPageViewerFragment(null, url);
             super.doUpdateVisitedHistory(view, url, isReload);
+            listener.informationFromPageViewerFragment("load", url);
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            super.onPageFinished(view, url);
+            listener.informationFromPageViewerFragment("load", url);
         }
     };
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+            wv.restoreState(savedInstanceState);
+        }
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
-        wv.saveState(outState);
         super.onSaveInstanceState(outState);
+        wv.saveState(outState);
     }
 
     public void go(String s, String url) {
@@ -71,6 +82,10 @@ public class PageViewerFragment extends Fragment {
         }
     }
 
+    public String getUrl() {
+        return wv.getOriginalUrl();
+    }
+
     public static PageViewerFragment newInstance() {
         return new PageViewerFragment();
     }
@@ -83,8 +98,8 @@ public class PageViewerFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof PageControlFragment.PageControlFragmentListener) {
-            listener = (PageViewerFragment.PageViewerFragmentListener) context;
+        if (context instanceof PageViewerFragmentListener) {
+            listener = (PageViewerFragmentListener) context;
         } else {
             throw new RuntimeException(context.toString() + " must implement listener");
         }
@@ -98,12 +113,13 @@ public class PageViewerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_page_viewer, container, false);
         wv = v.findViewById(R.id.web_view);
         wv.setWebViewClient(wvc);
         wv.getSettings().setJavaScriptEnabled(true);
-        if (savedInstanceState != null) wv.restoreState(savedInstanceState);
+        listener.informationFromPageViewerFragment("created", null);
         return v;
     }
 }
