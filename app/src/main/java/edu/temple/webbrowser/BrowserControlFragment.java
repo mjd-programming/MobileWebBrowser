@@ -16,7 +16,7 @@ import android.widget.ImageButton;
 public class BrowserControlFragment extends Fragment {
 
 
-    private BrowserControlFragment.BrowserControlFragmentListener listener;
+    BrowserControlFragmentListener listener;
 
     public static BrowserControlFragment newInstance() {
         return new BrowserControlFragment();
@@ -28,21 +28,15 @@ public class BrowserControlFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-    }
-
-    @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof BrowserControlFragment.BrowserControlFragmentListener) {
             listener = (BrowserControlFragment.BrowserControlFragmentListener) context;
-            getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         } else {
             throw new RuntimeException(context.toString() + " must implement listener");
         }
@@ -55,7 +49,6 @@ public class BrowserControlFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         final View v = inflater.inflate(R.layout.fragment_browser_control, container, false);
         ImageButton new_page_button = v.findViewById(R.id.new_page_button);
         new_page_button.setOnClickListener(new View.OnClickListener() {

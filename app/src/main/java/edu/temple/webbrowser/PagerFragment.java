@@ -18,17 +18,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.webkit.WebBackForwardList;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class PagerFragment extends Fragment implements PageViewerFragment.PageViewerFragmentListener {
+public class PagerFragment extends Fragment {
+
     ViewPager vp;
     ArrayList<PageViewerFragment> fragments;
     PagerFragmentListener listener;
     FragmentStatePagerAdapter fragmentStatePagerAdapter;
-    Parcelable savedState;
+
     public static PagerFragment newInstance() {
         return new PagerFragment();
     }
@@ -36,10 +38,24 @@ public class PagerFragment extends Fragment implements PageViewerFragment.PageVi
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        fragmentStatePagerAdapter = new FragmentStatePagerAdapter(getChildFragmentManager()) {
+        fragments = new ArrayList<>();
+        if (savedInstanceState != null) {
+            fragments = (ArrayList<PageViewerFragment>) savedInstanceState.getSerializable("fragments");
+        } else {
+            add();
+        }
+        fragmentStatePagerAdapter = new FragmentStatePagerAdapter(getFragmentManager()) {
             @Override
             public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
 
+            }
+
+            @Override
+            public int getItemPosition(@NonNull Object object) {
+                if (fragments.contains(object))
+                    return fragments.indexOf(object);
+                else
+                    return POSITION_NONE;
             }
 
             @NonNull
@@ -53,66 +69,20 @@ public class PagerFragment extends Fragment implements PageViewerFragment.PageVi
                 return fragments.size();
             }
         };
-        fragments = new ArrayList<>();
-        if (savedInstanceState != null) {
-            for (int i = 0; i < savedInstanceState.getInt("total"); i++) {
-                addFragment();
-            }
-            notifyChange();
-            fragmentStatePagerAdapter.restoreState(savedState, getClass().getClassLoader());
-        } else {
-            addFragment();
-        }
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        savedState = fragmentStatePagerAdapter.saveState();
-        outState.putInt("total", vp.getChildCount());
-    }
-
-    public void addFragment() {
-        PageViewerFragment pvf = PageViewerFragment.newInstance();
-        fragments.add(pvf);
-        if (vp != null) {
-            notifyChange();
-            vp.setOffscreenPageLimit(vp.getOffscreenPageLimit() + 1);
-        }
-    }
-
-    public void notifyChange() {
-        if (vp != null) vp.getAdapter().notifyDataSetChanged();
-    }
-
-    public int getCurrentItem() {
-        return vp.getCurrentItem();
-    }
-
-    public void setCurrentItem(int i) {
-        vp.setCurrentItem(i);
-        notifyChange();
-    }
-
-    public int getLastItemIndex() {
-        return vp.getChildCount();
-    }
-
-    public PageViewerFragment getCurrentPage() {
-        return fragments.get(getCurrentItem());
-    }
-
-    @Override
-    public void informationFromPageViewerFragment(String s, String url) {
-
+        outState.putSerializable("fragments", fragments);
     }
 
     public interface PagerFragmentListener {
-        void informationFromPagerFragment(String s, String url, int pos);
+        void informationFromPagerFragment(int i);
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof PagerFragmentListener) {
             listener = (PagerFragmentListener) context;
@@ -121,10 +91,43 @@ public class PagerFragment extends Fragment implements PageViewerFragment.PageVi
         }
     }
 
+    public void add() {
+        PageViewerFragment pageViewerFragment = PageViewerFragment.newInstance();
+        fragments.add(pageViewerFragment);
+    }
+
+    public void notifyDataSetChanged() {
+        fragmentStatePagerAdapter.notifyDataSetChanged();
+    }
+
+    public PageViewerFragment getCurrentPage() {
+        return (PageViewerFragment) fragmentStatePagerAdapter.getItem(vp.getCurrentItem());
+    }
+
+    public ArrayList<PageViewerFragment> getAllPages() {
+        return fragments;
+    }
+
+    public void setPages(ArrayList<PageViewerFragment> p) {
+        fragments = new ArrayList<>();
+        fragments.addAll(p);
+    }
+
+    public int getCurrentIndex() {
+        return vp.getCurrentItem();
+    }
+
+    public int getSize() {
+        return vp.getChildCount();
+    }
+
+    public void moveToPage(int i) {
+        vp.setCurrentItem(i, true);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              final Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_pager, container, false);
         vp = v.findViewById(R.id.view_pager);
         vp.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -135,7 +138,7 @@ public class PagerFragment extends Fragment implements PageViewerFragment.PageVi
 
             @Override
             public void onPageSelected(int position) {
-                listener.informationFromPagerFragment("selected", getCurrentPage().getUrl(), position);
+                listener.informationFromPagerFragment(position);
             }
 
             @Override
@@ -144,10 +147,6 @@ public class PagerFragment extends Fragment implements PageViewerFragment.PageVi
             }
         });
         vp.setAdapter(fragmentStatePagerAdapter);
-        if (savedInstanceState != null) {
-            notifyChange();
-            vp.setOffscreenPageLimit(fragments.size());
-        }
         return v;
     }
 }

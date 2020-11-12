@@ -20,7 +20,6 @@ public class PageControlFragment extends Fragment {
 
     private EditText text;
     private PageControlFragmentListener listener;
-    private Context context;
 
     public static PageControlFragment newInstance() {
         return new PageControlFragment();
@@ -43,18 +42,16 @@ public class PageControlFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        this.context = context;
         if (context instanceof PageControlFragmentListener) {
             listener = (PageControlFragmentListener) context;
-            getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         } else {
             throw new RuntimeException(context.toString() + " must implement listener");
         }
     }
 
-    public void setURLText(String s) {
+    public void setText(String s) {
         text.setText(s);
     }
 
@@ -65,7 +62,6 @@ public class PageControlFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         final View v = inflater.inflate(R.layout.fragment_page_control, container, false);
         text = v.findViewById(R.id.url);
         ImageButton go_button = v.findViewById(R.id.button_go);
@@ -73,24 +69,17 @@ public class PageControlFragment extends Fragment {
         ImageButton back_button = v.findViewById(R.id.button_back);
         go_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                String m = text.getText().toString();
-                listener.informationFromPageControlFragment("search", m);
-                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(getActivity().getWindow().getCurrentFocus().getWindowToken(), 0);
+                listener.informationFromPageControlFragment("search", text.getText().toString());
             }
         });
         next_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 listener.informationFromPageControlFragment("next", null);
-                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(getActivity().getWindow().getCurrentFocus().getWindowToken(), 0);
             }
         });
         back_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 listener.informationFromPageControlFragment("back", null);
-                InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(getActivity().getWindow().getCurrentFocus().getWindowToken(), 0);
             }
         });
         if (savedInstanceState != null) {

@@ -41,12 +41,9 @@ public class PageListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         pages = new ArrayList<>();
-        if (savedInstanceState != null) {
-            pages.addAll(savedInstanceState.getStringArrayList("pages"));
-        } else {
-            pages.add("New Window");
-        }
-        Log.println(Log.WARN, "onCreate() size", "" + pages.size());
+        adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, pages);
+        if (savedInstanceState != null) pages.addAll(savedInstanceState.getStringArrayList("pages"));
+        else pages.add("");
     }
 
     @Override
@@ -96,7 +93,6 @@ public class PageListFragment extends Fragment {
         // Inflate the layout for this fragment
         final View v = inflater.inflate(R.layout.fragment_page_list, container, false);
         ListView listView = v.findViewById(R.id.list_view);
-        adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, pages);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
