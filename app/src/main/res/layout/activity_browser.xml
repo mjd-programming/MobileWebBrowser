@@ -35,7 +35,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="parent">
-
     </FrameLayout>
 
     <FrameLayout
@@ -48,6 +47,11 @@
         app:layout_constraintTop_toBottomOf="@+id/page_control">
 
     </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/bookmarks_holder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

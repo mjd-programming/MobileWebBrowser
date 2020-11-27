@@ -108,7 +108,7 @@ public class PageViewerFragment extends Fragment implements Serializable {
         }
     }
 
-    public interface PageViewerFragmentListener {
+    public interface PageViewerFragmentListener extends Serializable {
         void informationFromPageViewerFragment();
     }
 
